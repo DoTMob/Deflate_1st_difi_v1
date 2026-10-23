@@ -30,8 +30,9 @@ threshold across multiple consecutive sample cycles, and drops them via
 > `inetbase.com`, a domain that has been **dead for years**. Running that
 > script today either fails or — if the domain is ever resurrected by a third
 > party — installs arbitrary root-owned code. **Do not run the old installer.**
-> This rewrite ships everything inside `ddos.sh`; `ddos.sh install` writes the
-> config and lists locally with no network access.
+> This rewrite ships everything inside `SLICEisDeflate.sh`;
+> `slicedeflate install` writes the config and lists locally with no network
+> access.
 
 ---
 
@@ -96,10 +97,32 @@ only accepts alphanumerics, hyphens, underscores, and periods in repo URLs.
 Everywhere a human reads the name — title, badges, footer, docs — the full
 tag `SL_CE'I_` is preserved.
 
-The script (`ddos.sh`), its CLI command (`ddos`), install paths, and
-configuration file names are **unchanged** from the DDoS-Deflate lineage.
-Only the project name and author attribution have been updated to fit the
-SL_CE'I_ suite naming convention.
+**Renamed for the suite:**
+
+| Layer | Before (DDoS-Deflate lineage) | After (scope B) |
+|---|---|---|
+| Source file | `ddos.sh` | `SLICEisDeflate.sh` |
+| CLI command | `ddos` | `slicedeflate` |
+| Installed path | `/usr/local/ddos/ddos.sh` | `/usr/local/ddos/SLICEisDeflate.sh` |
+| Symlink | `/usr/local/sbin/ddos` | `/usr/local/sbin/slicedeflate` |
+
+**Unchanged from the original DDoS-Deflate lineage** — so existing installs
+keep working and old stack traces, blog posts, and search results still
+resolve correctly:
+
+| Layer | Value |
+|---|---|
+| Config file | `/etc/ddos/ddos.conf` |
+| State directory | `/var/lib/ddos/` |
+| Log directory | `/var/log/ddos/` |
+| systemd unit | `ddos.service` |
+| ipset names | `ddos4`, `ddos6`, `ddos4_never4`, `ddos6_never6`, `ddos4_manual4`, `ddos6_manual6` |
+| iptables chain | `DDOS_DEFLATE` |
+
+The distinction is deliberate: **the command users type** matches the suite
+(`slicedeflate`), but **the paths and resource names on disk** match what
+already exists, so there is no migration step and no orphaned firewall
+objects on upgrade.
 
 ---
 
@@ -156,7 +179,7 @@ pooling.
 flowchart LR
     subgraph Host["Web host (root)"]
         KT["Kernel connection table"]
-        subgraph D["ddos.sh"]
+        subgraph D["SLICEisDeflate.sh"]
             SM["§8 Sampler<br/>ss / netstat"]
             PT["§9 Persistence<br/>streaks"]
             BM["§10 Ban manager<br/>TTL + recidivism"]
@@ -197,9 +220,9 @@ flowchart LR
 | Digest notifier | mail + webhook + notify-send, batched |
 | `flock` single instance | Second invocation exits cleanly |
 | Graceful signals | TERM/INT stop, HUP reload, USR1 stats |
-| One-command rollback | `ddos.sh teardown` |
+| One-command rollback | `slicedeflate teardown` |
 | Sandboxed systemd unit | `Protect*`, `Restrict*`, `PrivateTmp` |
-| Self-contained install | `ddos.sh install` writes config/lists/unit locally |
+| Self-contained install | `slicedeflate install` writes config/lists/unit locally |
 | Config allowlist | Only whitelisted keys honored |
 | `set -euo pipefail` | No `eval`, no unquoted expansions |
 
@@ -211,14 +234,14 @@ Delivered as **two files**:
 
 | File | Purpose |
 |---|---|
-| `ddos.sh` | The entire tool. All config defaults embedded; `install` writes them to disk. |
+| `SLICEisDeflate.sh` | The entire tool. All config defaults embedded; `install` writes them to disk. |
 | `README.md` | This document. |
 
-Files created by `ddos.sh install`:
+Files created by `slicedeflate install`:
 
 ```text
-/usr/local/ddos/ddos.sh                    (the script itself)
-/usr/local/sbin/ddos                       (symlink)
+/usr/local/ddos/SLICEisDeflate.sh          (the script itself)
+/usr/local/sbin/slicedeflate               (symlink → the script)
 /etc/ddos/ddos.conf                        (config; editable)
 /etc/ddos/ignore.ip.list                   (whitelist; never-ban)
 /etc/ddos/block.ip.list                    (manual bans)
@@ -256,13 +279,13 @@ Root (or `CAP_NET_ADMIN`) is required for `ipset` and `iptables` operations.
 
 ```bash
 # From a clone of this repo:
-sudo ./ddos.sh install
+sudo ./SLICEisDeflate.sh install
 ```
 
 The installer:
 
-1. Copies `ddos.sh` to `/usr/local/ddos/`
-2. Symlinks `/usr/local/sbin/ddos → /usr/local/ddos/ddos.sh`
+1. Copies `SLICEisDeflate.sh` to `/usr/local/ddos/`
+2. Symlinks `/usr/local/sbin/slicedeflate → /usr/local/ddos/SLICEisDeflate.sh`
 3. Writes `/etc/ddos/ddos.conf` with embedded defaults (preserves existing)
 4. Writes `/etc/ddos/ignore.ip.list` and creates `/etc/ddos/block.ip.list`
 5. Writes `/etc/systemd/system/ddos.service` with sandboxing
@@ -272,7 +295,7 @@ The installer:
 
 ```bash
 sudo vi /etc/ddos/ddos.conf
-sudo ddos --dry-run run
+sudo slicedeflate --dry-run run
 ```
 
 ### SysV / cron
@@ -280,7 +303,7 @@ sudo ddos --dry-run run
 If `systemctl` is not available, `install` prints a cron line you can add:
 
 ```cron
-* * * * * root /usr/local/ddos/ddos.sh --config /etc/ddos/ddos.conf once
+* * * * * root /usr/local/ddos/SLICEisDeflate.sh --config /etc/ddos/ddos.conf once
 ```
 
 The `once` subcommand runs one full sample cycle and exits, so it is safe to
@@ -292,7 +315,7 @@ schedule from cron.
 
 ```bash
 # 1. Install (creates config, lists, unit).
-sudo ./ddos.sh install
+sudo ./SLICEisDeflate.sh install
 
 # 2. Edit /etc/ddos/ddos.conf. At minimum:
 #    - CONN_THRESHOLD (default 100)
@@ -300,11 +323,11 @@ sudo ./ddos.sh install
 #    - MAIL_TO
 
 # 3. Verify the sampler works against your kernel:
-sudo ddos check
-sudo ddos test
+sudo slicedeflate check
+sudo slicedeflate test
 
 # 4. Dry-run in the foreground for 24h. Nothing touches the firewall.
-sudo ddos --dry-run run
+sudo slicedeflate --dry-run run
 
 # 5. Watch what it would have done:
 tail -f /var/log/ddos/events.jsonl | jq -c 'select(.event=="would_ban")'
@@ -321,7 +344,7 @@ sudo systemctl restart ddos
 ## Usage
 
 ```text
-ddos [options] [command]
+slicedeflate [options] [command]
 
 Commands:
   run           Start the daemon (default)
@@ -347,13 +370,13 @@ Options:
 
 ```bash
 # Status snapshot
-sudo ddos status
+sudo slicedeflate status
 
 # Currently banned IPs
-sudo ddos list
+sudo slicedeflate list
 
 # Unban one IP (clears offense counter)
-sudo ddos unban 203.0.113.5
+sudo slicedeflate unban 203.0.113.5
 
 # Reload config and lists without dropping bans
 sudo systemctl reload ddos          # sends SIGHUP
@@ -365,7 +388,7 @@ sudo kill -USR1 $(cat /var/lib/ddos/ddos.pid)
 tail -f /var/log/ddos/events.jsonl | jq .
 
 # Re-load lists and config on a cron-only system
-sudo ddos --config /etc/ddos/ddos.conf once
+sudo slicedeflate --config /etc/ddos/ddos.conf once
 ```
 
 ### Signals
@@ -381,7 +404,7 @@ sudo ddos --config /etc/ddos/ddos.conf once
 ## Configuration reference
 
 All keys live in `/etc/ddos/ddos.conf`. Unknown keys are ignored with a
-warning (allowlist enforced in `ddos.sh` §1).
+warning (allowlist enforced in `SLICEisDeflate.sh` §1).
 
 ### Detection
 
@@ -438,7 +461,7 @@ warning (allowlist enforced in `ddos.sh` §1).
 
 ## Sampler details
 
-`ddos.sh` uses `ss` when available, `netstat` otherwise:
+`SLICEisDeflate.sh` uses `ss` when available, `netstat` otherwise:
 
 ```bash
 ss -H -ntu                    # modern (iproute2)
@@ -478,8 +501,8 @@ That still works manually, but `ss` is the modern equivalent:
 ss -H -ntu | awk '{print $6}' | sed 's/:[0-9]*$//; s/[][]//g' | sort | uniq -c | sort -n
 ```
 
-Both are useful for a quick eyeball; `ddos.sh test` shows you the same data
-the daemon actually sees.
+Both are useful for a quick eyeball; `slicedeflate test` shows you the same
+data the daemon actually sees.
 
 ---
 
@@ -548,10 +571,10 @@ connection table, never a file.
 
 ```bash
 # Remove firewall objects only (keep service and config):
-sudo ddos teardown
+sudo slicedeflate teardown
 
 # Full uninstall:
-sudo ddos uninstall
+sudo slicedeflate uninstall
 ```
 
 `teardown` and `uninstall` both remove:
@@ -561,9 +584,9 @@ sudo ddos uninstall
 - the `ddos4` and `ddos6` sets
 - the `ddos4_never4/6`, `ddos4_manual4/6` sets
 
-If a bad threshold has locked out legitimate traffic, `ddos teardown` is your
-one-command recovery. The daemon continues running but no new traffic is
-dropped until the chain is recreated.
+If a bad threshold has locked out legitimate traffic, `slicedeflate teardown`
+is your one-command recovery. The daemon continues running but no new traffic
+is dropped until the chain is recreated.
 
 ---
 
@@ -744,8 +767,8 @@ ban is evaluated first.
 
 ### 10. Rollback is one command
 
-`ddos.sh teardown` removes every ipset set and chain the tool created. It
-leaves the config and the service files in place so you can re-enable.
+`slicedeflate teardown` removes every ipset set and chain the tool created.
+It leaves the config and the service files in place so you can re-enable.
 
 ### 11. Single-instance enforcement
 
@@ -768,7 +791,7 @@ incident — not a rolling text log.
 ### 14. The old installer must not be run
 
 If you find `install.sh` anywhere in an old checkout, do not run it. It
-downloads from a dead domain over plaintext HTTP. Use `ddos.sh install`
+downloads from a dead domain over plaintext HTTP. Use `slicedeflate install`
 instead.
 
 ---
@@ -777,18 +800,30 @@ instead.
 
 ### v2.0.0 — first release under the SLICEisDeflate name
 
-> **Renaming note (README-only change):** The project was prepared internally
-> as "DDoS-Deflate 2.0". It is now published as **SLICEisDeflate** to fit
-> the SL_CE'I_ suite naming convention. The script (`ddos.sh`), its CLI
-> command (`ddos`), install paths, and configuration file names are
-> unchanged. Existing installs keep working; only the repo title and author
-> attribution have been updated.
+> **Renaming note (scope B):** The project was prepared internally as
+> "DDoS-Deflate 2.0" and is now published as **SLICEisDeflate** to fit the
+> SL_CE'I_ suite naming convention.
+>
+> **Renamed:**
+> - Source file: `ddos.sh` → `SLICEisDeflate.sh`
+> - CLI command: `ddos` → `slicedeflate`
+> - Installed path: `/usr/local/ddos/ddos.sh` → `/usr/local/ddos/SLICEisDeflate.sh`
+> - Symlink: `/usr/local/sbin/ddos` → `/usr/local/sbin/slicedeflate`
+>
+> **Unchanged:** config path (`/etc/ddos/ddos.conf`), state dir
+> (`/var/lib/ddos/`), log dir (`/var/log/ddos/`), systemd unit name
+> (`ddos.service`), ipset names (`ddos4`, `ddos6`), iptables chain
+> (`DDOS_DEFLATE`), all subcommands and flags.
+>
+> Existing installs keep working — the on-disk resources are unchanged, so
+> there is no migration step and no orphaned firewall objects on upgrade.
+> Only the file name and the command users type have moved.
 
 **Correctness and safety fixes over 0.6:**
 
 | # | Bug (original) | Fix |
 |---|---|---|
-| 1 | `install.sh` fetched files over HTTP from a dead domain | All defaults embedded in `ddos.sh`; `install` writes them locally |
+| 1 | `install.sh` fetched files over HTTP from a dead domain | All defaults embedded in `SLICEisDeflate.sh`; `install` writes them locally |
 | 2 | Required `netstat` | `ss` primary, `netstat` fallback |
 | 3 | IPv4 only | `ipset inet` + `ipset inet6` |
 | 4 | `iptables -A` appended after ACCEPT | `DDOS_DEFLATE` chain inserted at `INPUT` position 1 |
@@ -817,22 +852,22 @@ instead.
 
 | File | Change |
 |---|---|
-| `ddos.sh` | new — full rewrite as a single self-contained script |
+| `SLICEisDeflate.sh` | new — full rewrite as a single self-contained script |
 | `README.md` | new — this file (originally prepared as DDoS-Deflate 2.0) |
-| `install.sh` | **deleted** — replaced by `ddos.sh install` |
+| `install.sh` | **deleted** — replaced by `slicedeflate install` |
 
 ---
 
 ## Credits
 
-Original DDOS-Deflate 0.6 by **Zaf** (`zaf@vsnl.com`), circa 2012. The
+Original 'DDOS-Deflate' 0.6 by **Zaf** (`zaf@vsnl.com`), circa 2009. The
 concept — watching the connection table and banning abusive peers — is
-theirs. This rewrite keeps the idea and discards the delivery mechanism.
+theirs. This rewrite keeps the idea and discards the delivery mechanism... <code>D0T_SL_CE'I_</code>
 
 The measurement and detection model in this rewrite is informed by the same
 principles used by modern connection-rate limiters and by the DDoS mitigation
 literature (BCP 38 ingress filtering, `ipset`-based firewall design, and
-response-rate limiting as described in the DNS and HTTP hardening literature)... SL_CE'I_
+response-rate limiting as described in the DNS and HTTP hardening literature).
 
 ---
 
