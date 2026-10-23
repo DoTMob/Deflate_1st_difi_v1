@@ -832,7 +832,7 @@ theirs. This rewrite keeps the idea and discards the delivery mechanism.
 The measurement and detection model in this rewrite is informed by the same
 principles used by modern connection-rate limiters and by the DDoS mitigation
 literature (BCP 38 ingress filtering, `ipset`-based firewall design, and
-response-rate limiting as described in the DNS and HTTP hardening literature).
+response-rate limiting as described in the DNS and HTTP hardening literature)... SL_CE'I_
 
 ---
 
