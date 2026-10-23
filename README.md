@@ -1,4 +1,4 @@
-# Deflate_1st_difi_v1
+# SLICEisDeflate
 
 **Connection-count based IP blocker for Linux servers.**
 
@@ -7,12 +7,15 @@ threshold across multiple consecutive sample cycles, and drops them via
 `ipset` + `iptables` for a configurable TTL. Modern successor to the classic
 [DDOS-Deflate 0.6](https://en.wikipedia.org/wiki/DDoS_Deflate) (Zaf, ~2012).
 
-**Maintained by [`D0T_SL_CE"I_"`](https://github.com/)**
+**Maintained by [`SL_CE'I_`](https://github.com/)**
+
+> *SL_CE'I_ → SLICE'IS → "Slice is" → **Internet Security**, by design.*
+> The two letters hidden behind the underscores spell **IS**.
 
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](#license)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20systemd%20%7C%20cron-lightgrey.svg)](#requirements)
-[![Author](https://img.shields.io/badge/author-SL__CE%22I__%22-8957e5.svg)](#)
+[![Author](https://img.shields.io/badge/author-SL__CE%27I__%27-8957e5.svg)](#)
 
 > ### ⚠️ Defensive tooling only
 >
@@ -35,6 +38,7 @@ threshold across multiple consecutive sample cycles, and drops them via
 ## Table of contents
 
 - [What it does](#what-it-does)
+- [Why the name](#why-the-name)
 - [Why a rewrite](#why-a-rewrite)
 - [How it detects](#how-it-detects)
 - [Architecture](#architecture)
@@ -72,6 +76,30 @@ threshold across multiple consecutive sample cycles, and drops them via
    distinct local ports.
 7. Every decision is written to `/var/log/ddos/events.jsonl` and, optionally,
    emailed/webhooked.
+
+---
+
+## Why the name
+
+**SLICEisDeflate** is a phonetic expansion of the author's tag `SL_CE'I_`:
+
+| Form | Reading |
+|---|---|
+| `SL_CE'I_` | The tag — two underscores hide two letters |
+| `SLICE'IS` | Expanded — the hidden letters are **I** and **S** |
+| "Slice is" | Phonetic — reads as the English words |
+| **I**nternet **S**ecurity | What the hidden IS stands for |
+| SLICEisDeflate | The product — "Slice is Deflate" |
+
+The GitHub slug is `SLICEisDeflate` (no apostrophe, no quotes) because GitHub
+only accepts alphanumerics, hyphens, underscores, and periods in repo URLs.
+Everywhere a human reads the name — title, badges, footer, docs — the full
+tag `SL_CE'I_` is preserved.
+
+The script (`ddos.sh`), its CLI command (`ddos`), install paths, and
+configuration file names are **unchanged** from the DDoS-Deflate lineage.
+Only the project name and author attribution have been updated to fit the
+SL_CE'I_ suite naming convention.
 
 ---
 
@@ -135,8 +163,8 @@ flowchart LR
             NO["§11 Notifier"]
         end
         subgraph FW["Firewall"]
-            S4["ipset ddos4<br/>TTL natives"]
-            S6["ipset ddos6<br/>TTL natives"]
+            S4["ipset ddos4<br/>native TTL"]
+            S6["ipset ddos6<br/>native TTL"]
             CH["iptables DDOS_DEFLATE<br/>-m set --match-set ... -j DROP"]
         end
         ST["/var/lib/ddos<br/>streaks · offenses · history"]
@@ -590,7 +618,7 @@ credentials. A well-run server is uninteresting to a volumetric attacker and
 resilient to the application-layer ones.
 
 **2. Detection and filtering — during the attack.** This is where tools like
-DDoS-Deflate live. The goal is to notice that something is wrong — an
+SLICEisDeflate live. The goal is to notice that something is wrong — an
 unusual connection count per peer, an unusual request rate, an unusual
 response-size distribution — and to take *narrow* action before the whole
 service is affected. Narrow is the key word: a good filter bans the specific
@@ -605,14 +633,14 @@ offenders worth blocking permanently. It is also where you learn: which
 threshold was too low, which legitimate traffic you accidentally caught,
 which monitoring gap let the attack run longer than necessary.
 
-### Where DDoS-Deflate fits
+### Where SLICEisDeflate fits
 
-The original DDoS-Deflate belongs to phase 2 — detection and filtering. It
-watches the kernel's connection table, notices when a single peer is holding
-an unusual number of connections, and bans that peer's address for a
-configurable window. It is a *narrow, reactive, low-footprint* control. It is
-**not** a substitute for phase 1 hardening, and it cannot stop a volumetric
-attack that exhausts your upstream bandwidth before your kernel ever sees the
+SLICEisDeflate belongs to phase 2 — detection and filtering. It watches the
+kernel's connection table, notices when a single peer is holding an unusual
+number of connections, and bans that peer's address for a configurable
+window. It is a *narrow, reactive, low-footprint* control. It is **not** a
+substitute for phase 1 hardening, and it cannot stop a volumetric attack
+that exhausts your upstream bandwidth before your kernel ever sees the
 packets.
 
 What it can do, cheaply:
@@ -651,8 +679,9 @@ missing real attacks.
 
 ## Safety warnings
 
-These are the guardrails that separate DDoS-Deflate 2.0 from the original
-0.6. Each one is either enforced in code or by config validation.
+These are the guardrails that separate SLICEisDeflate from the original
+DDoS-Deflate 0.6. Each one is either enforced in code or by config
+validation.
 
 ### 1. Start in dry-run for at least 24 hours
 
@@ -746,7 +775,14 @@ instead.
 
 ## Changelog
 
-### v2.0.0 — first release under the DDoS-Deflate 2.0 name
+### v2.0.0 — first release under the SLICEisDeflate name
+
+> **Renaming note (README-only change):** The project was prepared internally
+> as "DDoS-Deflate 2.0". It is now published as **SLICEisDeflate** to fit
+> the SL_CE'I_ suite naming convention. The script (`ddos.sh`), its CLI
+> command (`ddos`), install paths, and configuration file names are
+> unchanged. Existing installs keep working; only the repo title and author
+> attribution have been updated.
 
 **Correctness and safety fixes over 0.6:**
 
@@ -782,7 +818,7 @@ instead.
 | File | Change |
 |---|---|
 | `ddos.sh` | new — full rewrite as a single self-contained script |
-| `README.md` | new — this file |
+| `README.md` | new — this file (originally prepared as DDoS-Deflate 2.0) |
 | `install.sh` | **deleted** — replaced by `ddos.sh install` |
 
 ---
@@ -807,6 +843,6 @@ MIT — see `LICENSE`. Choose and commit a license file before publishing.
 ---
 
 <p align="center">
-  <strong>DDoS-Deflate 2.0</strong> — connection-aware, ipset-native, auditable.<br/>
-  <sub>Maintained by <code>SL_CE"I_"</code> · MIT License</sub>
+  <strong>SLICEisDeflate</strong> — connection-aware, ipset-native, auditable.<br/>
+  <sub>Maintained by <code>SL_CE'I_</code> · MIT License</sub>
 </p>
