@@ -1,0 +1,15 @@
+# Runtime state — never commit
+*.pid
+*.lock
+*.jsonl
+ban-history
+offenses/
+
+# Install-generated config (lives at /etc/ddos/, not in repo)
+ddos.conf
+ignore.ip.list
+block.ip.list
+
+# Editor / OS noise
+.DS_Store
+*.swp
