@@ -1,4 +1,4 @@
-# DDoS-Deflate 2.0
+# Deflate_1st_difi_v1
 
 **Connection-count based IP blocker for Linux servers.**
 
